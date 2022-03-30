@@ -1,10 +1,14 @@
 import React from 'react'
+import { Dashboard } from './components/Dashboard'
+import { Header } from './components/Header'
 import { GlobalStyle } from './styles/global'
 
 export function App() {
   return (
-    <h1 className="App">
-      Hello World <GlobalStyle />
-    </h1>
+    <React.Fragment>
+      <Header />
+      <Dashboard />
+      <GlobalStyle />
+    </React.Fragment>
   )
 }
