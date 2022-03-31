@@ -1,10 +1,13 @@
+import { useState, FormEvent, useContext } from 'react'
 import Modal from 'react-modal'
-import { Container, TransactionTypeContainer, RadioBox } from './styles'
+import { api } from '../../services/api'
+
 import close from '../../assets/close.svg'
 import income from '../../assets/income.svg'
 import outcome from '../../assets/outcome.svg'
-import { useState, FormEvent } from 'react'
-import { api } from '../../services/api'
+
+import { Container, TransactionTypeContainer, RadioBox } from './styles'
+import { TransactionContext } from '../../context/TransactionContext'
 
 interface NewTransactionModalProps {
   isOpen: boolean
@@ -12,17 +15,31 @@ interface NewTransactionModalProps {
 }
 
 export function NewTransactionModal({ isOpen, onRequestClose }: NewTransactionModalProps) {
-  const [type, setType] = useState('deposit')
+  const { createTransaction } = useContext(TransactionContext)
+
+  const [type, setType] = useState<'deposit' | 'withdraw'>('deposit')
   const [title, setTitle] = useState('')
-  const [value, setValue] = useState(0)
+  const [amount, setAmount] = useState(0)
   const [category, setCategory] = useState('')
 
   Modal.setAppElement('#root')
 
-  function handleCreateNewTransaction(e: FormEvent) {
+  async function handleCreateNewTransaction(e: FormEvent) {
     e.preventDefault()
-    const data = { title, type, value, category }
-    api.post('transactions', data)
+
+    await createTransaction({
+      title,
+      type,
+      category,
+      amount,
+    })
+
+    setTitle('')
+    setType('deposit')
+    setAmount(0)
+    setCategory('')
+
+    onRequestClose()
   }
 
   return (
@@ -47,8 +64,8 @@ export function NewTransactionModal({ isOpen, onRequestClose }: NewTransactionMo
         <input
           type="number"
           placeholder="Valor"
-          value={value}
-          onChange={(e) => setValue(Number(e.target.value))}
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
         />
 
         <TransactionTypeContainer>
